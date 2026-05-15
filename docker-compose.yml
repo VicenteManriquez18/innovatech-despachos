@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  database_despachos:
+    image: mysql:8.0
+    container_name: db_mysql_despachos
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_despachos
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data_despachos:/var/lib/mysql
+    networks:
+      - red_proyecto
+    restart: always
+
+  back_despachos:
+    build: .
+    image: ${DOCKER_IMAGE:-proyecto-back-despachos:latest}
+    container_name: api_despachos
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_ENDPOINT=database_despachos
+      - DB_PORT=3306
+      - DB_NAME=db_despachos
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+    depends_on:
+      - database_despachos
+    networks:
+      - red_proyecto
+    restart: always
+
+volumes:
+  db_data_despachos:
+
+networks:
+  red_proyecto:
+    external: true
+    name: red_proyecto
